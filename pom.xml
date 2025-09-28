@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dnc</groupId>
@@ -71,8 +70,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <compilerArgs>
                         <arg>-Xlint:all</arg>
                         <arg>-parameters</arg>
@@ -95,23 +94,40 @@
                 </configuration>
             </plugin>
 
-            <!-- Exec plugin for running main class -->
+            <!-- Exec plugin for running main class. -->
+            <!-- We provide both a top-level configuration and an execution so users can either call the plugin directly or invoke the 'run-main' execution. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
                 <configuration>
+                    <!-- default main class used by the plugin -->
                     <mainClass>com.dnc.algorithms.Main</mainClass>
+                    <!-- support passing arguments via -Dexec.args="arg1 arg2" on the mvn command line -->
+                    <arguments>
+                        <argument>${exec.args}</argument>
+                    </arguments>
+                    <classpathScope>runtime</classpathScope>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>run-main</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <!-- Not bound to a lifecycle phase by default. Run with: mvn -Dexec.args="..." exec:java OR mvn -Dexec.args="..." exec:java@run-main -->
+                    </execution>
+                </executions>
             </plugin>
 
-            <!-- JMH benchmark plugin -->
+            <!-- Shade plugin for producing benchmark JAR (JMH) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.4.1</version>
                 <executions>
                     <execution>
+                        <id>shade-bench</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
@@ -131,7 +147,7 @@
     </build>
 
     <profiles>
-        <!-- Profile for running benchmarks -->
+        <!-- Profile for running benchmarks: compiles benchmarks under the bench/ tree. -->
         <profile>
             <id>benchmark</id>
             <build>

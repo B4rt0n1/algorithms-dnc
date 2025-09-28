@@ -14,11 +14,14 @@ public class MetricsTracker {
     }
     public void exitRecursion() { recursionDepth--; }
     
-    // Getters and reset method
     public void reset() {
         comparisons = 0;
         allocations = 0;
         recursionDepth = 0;
         maxRecursionDepth = 0;
+    }
+
+    public int getMaxRecursionDepth() {
+        return maxRecursionDepth;
     }
 }
